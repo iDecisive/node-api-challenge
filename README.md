@@ -56,7 +56,7 @@ Status code 200 or 201 could be used depending on the exact HTTP method.
 
 - [ ] How can we partition our application into sub-applications?
 
-Using Express routing allows us to break up our backend application into  smaller pieces.
+Using Express routing allows us to break up our backend application into smaller pieces.
 
 ## Minimum Viable Product
 
