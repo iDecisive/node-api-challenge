@@ -24,6 +24,17 @@ server.use(express.json());
 
 const PORT = 8000;
 
+//Middleware
+
+server.use(function (req, res, next) {
+	res.header('Access-Control-Allow-Origin', 'http://localhost:3000'); // update to match the domain you will make the request from
+	res.header(
+		'Access-Control-Allow-Headers',
+		'Origin, X-Requested-With, Content-Type, Accept'
+	);
+	next();
+});
+
 //CRUD operations on Projects
 
 server.post('/api/projects', (req, res) => {
@@ -46,7 +57,7 @@ server.post('/api/projects', (req, res) => {
 	}
 });
 
-server.get('/api/projects', (req, res) => {
+server.get('/api/projects', (req, res, next) => {
 	Projects.get()
 		.then((returned) => {
 			res.json(returned);
@@ -139,22 +150,26 @@ server.get('/api/actions', (req, res) => {
 });
 
 server.get('/api/projects/:id/actions', (req, res) => {
-    //get actions for select project
-    Projects.get(req.params.id).then(() => {
+	//get actions for select project
+	Projects.get(req.params.id)
+		.then(() => {
+			Actions.get()
+				.then((arr) => {
+					let selectActions = arr.filter(
+						(item) => Number(item.project_id) === Number(req.params.id)
+					);
 
-        Actions.get().then(arr => {
-
-            let selectActions = arr.filter(item => item.project_id === Number(req.params.id));
-
-            res.json(selectActions);
-
-        }).catch(err => {
-            res.status(500).json({error: "Server failed to get actions for project"})
-        })
-
-    }).catch(err => {
-        res.status(500).json({error: "Server failed to get project"});
-    });
+					res.json(selectActions);
+				})
+				.catch((err) => {
+					res
+						.status(500)
+						.json({ error: 'Server failed to get actions for project' });
+				});
+		})
+		.catch((err) => {
+			res.status(500).json({ error: 'Server failed to get project' });
+		});
 });
 
 server.put('/api/actions/:id', (req, res) => {
@@ -205,6 +220,7 @@ server.delete('/api/actions/:id', (req, res) => {
 			res.status(500).json({ error: "Server couldn't find action" });
 		});
 });
+
 
 //Starts server
 
