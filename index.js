@@ -106,6 +106,30 @@ server.delete('/api/projects/:id', (req, res) => {
 
 //Crud operations on actions
 
+server.post('/api/actions', (req, res) => {
+	//if none of that in req.body...
+
+	if (!req.body.project_id || !req.body.description || !req.body.notes) {
+		res.status(400).json({
+			message:
+				'Required fields: project_id (int), description (string), notes (string)',
+		});
+	} else {
+		Actions.insert({
+			project_id: req.body.project_id,
+			description: req.body.description,
+			notes: req.body.notes,
+			completed: false,
+		})
+			.then((returned) => {
+				res.status(201).json(returned);
+			})
+			.catch((err) => {
+				res.status(500).json({ error: 'Server failed to create action' });
+			});
+	}
+});
+
 server.get('/api/actions', (req, res) => {
 	Actions.get()
 		.then((returned) => {
@@ -115,6 +139,8 @@ server.get('/api/actions', (req, res) => {
 			res.status(500).json({ error: 'Server failed to get actions' });
 		});
 });
+
+//get all actions for project of this id?
 
 //Starts server
 
