@@ -27,11 +27,9 @@ const PORT = 8000;
 
 server.post('/api/projects', (req, res) => {
 	if (!req.body.name || !req.body.description) {
-		res
-			.status(400)
-			.json({
-				message: 'Needs following fields: name (string), description (string)',
-			});
+		res.status(400).json({
+			message: 'Needs following fields: name (string), description (string)',
+		});
 	} else {
 		Projects.insert({
 			name: req.body.name,
@@ -58,54 +56,65 @@ server.get('/api/projects', (req, res) => {
 });
 
 server.put('/api/projects/:id', (req, res) => {
-
-    //add check to see if valid id
+	//add check to see if valid id
 
 	if (
 		!req.body.name ||
 		!req.body.description ||
 		req.body.completed === undefined
 	) {
-		res
-			.status(400)
-			.json({
-				message:
-					'Required fields: name (string), description (string), completed (bool)',
-			});
+		res.status(400).json({
+			message:
+				'Required fields: name (string), description (string), completed (bool)',
+		});
 	} else {
-		Projects.update(req.params.id, {
-			name: req.body.name,
-			description: req.body.description,
-			completed: req.body.completed,
-		})
-			.then((newPro) => {
-				res.status(200).json(newPro);
+		Projects.get(req.params.id)
+			.then(() => {
+				Projects.update(req.params.id, {
+					name: req.body.name,
+					description: req.body.description,
+					completed: req.body.completed,
+				})
+					.then((newPro) => {
+						res.status(200).json(newPro);
+					})
+					.catch((err) => {
+						res.status(500).json({ error: 'Server failed to update project' });
+					});
 			})
 			.catch((err) => {
-				res.status(500).json({ error: 'Server failed to update project' });
+				res.status(500).json({ error: "Server couldn't find project" });
 			});
 	}
 });
 
 server.delete('/api/projects/:id', (req, res) => {
-
-    Projects.get(req.params.id).then(() => {
-
-        Projects.remove(req.params.id).then(returned => {
-            res.json(returned);
-        }).catch(err => {
-            res.status(500).json({error: "Server failed to remove project"});
-        });
-
-    }).catch(err => {
-        res.status(500).json({error: "Server couldn't find project"});
-    });
-
+	Projects.get(req.params.id)
+		.then(() => {
+			Projects.remove(req.params.id)
+				.then((returned) => {
+					res.json(returned);
+				})
+				.catch((err) => {
+					res.status(500).json({ error: 'Server failed to remove project' });
+				});
+		})
+		.catch((err) => {
+			res.status(500).json({ error: "Server couldn't find project" });
+		});
 });
 
 //Crud operations on actions
 
-
+server.get('/api/actions', (req, res) => {
+	Actions.get()
+		.then((returned) => {
+			res.json(returned);
+		})
+		.catch((err) => {
+			res.status(500).json({ error: 'Server failed to get actions' });
+		});
+});
 
 //Starts server
 
