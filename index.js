@@ -56,7 +56,6 @@ server.get('/api/projects', (req, res) => {
 });
 
 server.put('/api/projects/:id', (req, res) => {
-	//add check to see if valid id
 
 	if (
 		!req.body.name ||
@@ -140,7 +139,41 @@ server.get('/api/actions', (req, res) => {
 		});
 });
 
-//get all actions for project of this id?
+server.put('/api/actions/:id', (req, res) => {
+
+	if (
+		!req.body.project_id ||
+        !req.body.description ||
+        !req.body.notes ||
+		req.body.completed === undefined
+	) {
+		res.status(400).json({
+			message:
+				'Required fields: project_id (int), description (string), notes (string), completed (bool)',
+		});
+	} else {
+		Actions.get(req.params.id)
+			.then(() => {
+				Actions.update(req.params.id, {
+					project_id: req.body.project_id,
+                    description: req.body.description,
+                    notes: req.body.notes,
+					completed: req.body.completed
+				})
+					.then((newAct) => {
+						res.status(200).json(newAct);
+					})
+					.catch((err) => {
+						res.status(500).json({ error: 'Server failed to update action' });
+					});
+			})
+			.catch((err) => {
+				res.status(500).json({ error: "Server couldn't find action" });
+			});
+	}
+});
+
+//get all actions for project of this id? same with project?
 
 //Starts server
 
