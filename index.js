@@ -16,6 +16,7 @@ Go code!
 const express = require('express');
 const Projects = require('./data/helpers/projectModel');
 const Actions = require('./data/helpers/actionModel');
+const { json } = require('express');
 
 const server = express();
 
@@ -56,7 +57,6 @@ server.get('/api/projects', (req, res) => {
 });
 
 server.put('/api/projects/:id', (req, res) => {
-
 	if (
 		!req.body.name ||
 		!req.body.description ||
@@ -106,7 +106,6 @@ server.delete('/api/projects/:id', (req, res) => {
 //Crud operations on actions
 
 server.post('/api/actions', (req, res) => {
-
 	if (!req.body.project_id || !req.body.description || !req.body.notes) {
 		res.status(400).json({
 			message:
@@ -129,6 +128,7 @@ server.post('/api/actions', (req, res) => {
 });
 
 server.get('/api/actions', (req, res) => {
+	//get all actions
 	Actions.get()
 		.then((returned) => {
 			res.json(returned);
@@ -138,12 +138,30 @@ server.get('/api/actions', (req, res) => {
 		});
 });
 
-server.put('/api/actions/:id', (req, res) => {
+server.get('/api/projects/:id/actions', (req, res) => {
+    //get actions for select project
+    Projects.get(req.params.id).then(() => {
 
+        Actions.get().then(arr => {
+
+            let selectActions = arr.filter(item => item.project_id === Number(req.params.id));
+
+            res.json(selectActions);
+
+        }).catch(err => {
+            res.status(500).json({error: "Server failed to get actions for project"})
+        })
+
+    }).catch(err => {
+        res.status(500).json({error: "Server failed to get project"});
+    });
+});
+
+server.put('/api/actions/:id', (req, res) => {
 	if (
 		!req.body.project_id ||
-        !req.body.description ||
-        !req.body.notes ||
+		!req.body.description ||
+		!req.body.notes ||
 		req.body.completed === undefined
 	) {
 		res.status(400).json({
@@ -155,9 +173,9 @@ server.put('/api/actions/:id', (req, res) => {
 			.then(() => {
 				Actions.update(req.params.id, {
 					project_id: req.body.project_id,
-                    description: req.body.description,
-                    notes: req.body.notes,
-					completed: req.body.completed
+					description: req.body.description,
+					notes: req.body.notes,
+					completed: req.body.completed,
 				})
 					.then((newAct) => {
 						res.status(200).json(newAct);
@@ -187,8 +205,6 @@ server.delete('/api/actions/:id', (req, res) => {
 			res.status(500).json({ error: "Server couldn't find action" });
 		});
 });
-
-//get all actions for project of this id? same with project?
 
 //Starts server
 
