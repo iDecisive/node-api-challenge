@@ -106,7 +106,6 @@ server.delete('/api/projects/:id', (req, res) => {
 //Crud operations on actions
 
 server.post('/api/actions', (req, res) => {
-	//if none of that in req.body...
 
 	if (!req.body.project_id || !req.body.description || !req.body.notes) {
 		res.status(400).json({
@@ -171,6 +170,22 @@ server.put('/api/actions/:id', (req, res) => {
 				res.status(500).json({ error: "Server couldn't find action" });
 			});
 	}
+});
+
+server.delete('/api/actions/:id', (req, res) => {
+	Actions.get(req.params.id)
+		.then(() => {
+			Actions.remove(req.params.id)
+				.then((returned) => {
+					res.json(returned);
+				})
+				.catch((err) => {
+					res.status(500).json({ error: 'Server failed to remove action' });
+				});
+		})
+		.catch((err) => {
+			res.status(500).json({ error: "Server couldn't find action" });
+		});
 });
 
 //get all actions for project of this id? same with project?
