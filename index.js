@@ -26,52 +26,89 @@ const PORT = 8000;
 //CRUD operations on Projects
 
 server.post('/api/projects', (req, res) => {
-
-    if (!req.body.name || !req.body.description) {
-
-        res.status(400).json({ message: "Needs following fields: name (string), description (string)" });
-
-    } else {
-
-        Projects.insert({
-            name: req.body.name,
-            description: req.body.description,
-            completed: false
-        }).then(newPro => {
-            res.status(201).json(newPro);
-        }).catch(err => {
-            res.status(500).json({ error: "Server failed to create new project" });
-        })
-
-        
-
-    }
-
+	if (!req.body.name || !req.body.description) {
+		res
+			.status(400)
+			.json({
+				message: 'Needs following fields: name (string), description (string)',
+			});
+	} else {
+		Projects.insert({
+			name: req.body.name,
+			description: req.body.description,
+			completed: false,
+		})
+			.then((newPro) => {
+				res.status(201).json(newPro);
+			})
+			.catch((err) => {
+				res.status(500).json({ error: 'Server failed to create new project' });
+			});
+	}
 });
 
 server.get('/api/projects', (req, res) => {
+	Projects.get()
+		.then((returned) => {
+			res.json(returned);
+		})
+		.catch((err) => {
+			res.status(500).json({ error: 'Server failed to get projects' });
+		});
+});
 
-    Projects.get().then(returned => {
-        res.json(returned);
+server.put('/api/projects/:id', (req, res) => {
+
+    //add check to see if valid id
+
+	if (
+		!req.body.name ||
+		!req.body.description ||
+		req.body.completed === undefined
+	) {
+		res
+			.status(400)
+			.json({
+				message:
+					'Required fields: name (string), description (string), completed (bool)',
+			});
+	} else {
+		Projects.update(req.params.id, {
+			name: req.body.name,
+			description: req.body.description,
+			completed: req.body.completed,
+		})
+			.then((newPro) => {
+				res.status(200).json(newPro);
+			})
+			.catch((err) => {
+				res.status(500).json({ error: 'Server failed to update project' });
+			});
+	}
+});
+
+server.delete('/api/projects/:id', (req, res) => {
+
+    Projects.get(req.params.id).then(() => {
+
+        Projects.remove(req.params.id).then(returned => {
+            res.json(returned);
+        }).catch(err => {
+            res.status(500).json({error: "Server failed to remove project"});
+        });
+
     }).catch(err => {
-        res.status(500).json({ error: "Server failed to get projects" });
-    })
+        res.status(500).json({error: "Server couldn't find project"});
+    });
 
 });
 
 //Crud operations on actions
 
-// Custom Middleware
 
-let logger = (req, res, next) => {
-	console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`); 
-	next();
-};
-
-server.use(logger);
 
 //Starts server
 
 server.listen(PORT, () => {
 	console.log(`Server is running on port ${PORT}`);
-}); 
+});
