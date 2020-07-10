@@ -40,13 +40,23 @@ Demonstrate your understanding of this Sprint's concepts by answering the follow
 
 - [ ] Mention two parts of Express that you learned about this week.
 
+We learned express routing and express middleware this week.
+
 - [ ] Describe Middleware?
+
+Middleware is a list of functions added by the user or outside libraries that are called in order when an HTTP method is fired.
 
 - [ ] Describe a Resource?
 
+A resource is data the server has access to. For example, in one of our projects this week we had a resource that was a list of hobbits.
+
 - [ ] What can the API return to help clients know if a request was successful?
 
+Status code 200 or 201 could be used depending on the exact HTTP method.
+
 - [ ] How can we partition our application into sub-applications?
+
+Using Express routing allows us to break up our backend application into  smaller pieces.
 
 ## Minimum Viable Product
 
