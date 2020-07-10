@@ -13,3 +13,65 @@ I need this code, but don't know where, perhaps should make some middleware, don
 Go code!
 */
 
+const express = require('express');
+const Projects = require('./data/helpers/projectModel');
+const Actions = require('./data/helpers/actionModel');
+
+const server = express();
+
+server.use(express.json());
+
+const PORT = 8000;
+
+//CRUD operations on Projects
+
+server.post('/api/projects', (req, res) => {
+
+    if (!req.body.name || !req.body.description) {
+
+        res.status(400).json({ message: "Needs following fields: name (string), description (string)" });
+
+    } else {
+
+        Projects.insert({
+            name: req.body.name,
+            description: req.body.description,
+            completed: false
+        }).then(newPro => {
+            res.status(201).json(newPro);
+        }).catch(err => {
+            res.status(500).json({ error: "Server failed to create new project" });
+        })
+
+        
+
+    }
+
+});
+
+server.get('/api/projects', (req, res) => {
+
+    Projects.get().then(returned => {
+        res.json(returned);
+    }).catch(err => {
+        res.status(500).json({ error: "Server failed to get projects" });
+    })
+
+});
+
+//Crud operations on actions
+
+// Custom Middleware
+
+let logger = (req, res, next) => {
+	console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`); 
+	next();
+};
+
+server.use(logger);
+
+//Starts server
+
+server.listen(PORT, () => {
+	console.log(`Server is running on port ${PORT}`);
+}); 
